@@ -2,9 +2,9 @@
 
 # Variables
 # Cloud Lab users should use the existing Resource group name, such as, resourceGroup="cloud-demo-153430"
-resourceGroup="acdnd-c4-exercise"
-clusterName="udacity-cluster"
-myAcrName="myacr202106"
+resourceGroup="acdnd-c4-exercise" \
+    clusterName="udacity-cluster" \
+    myAcrName="myacr202106"
 
 # Install aks cli
 echo "Installing AKS CLI"
@@ -79,3 +79,25 @@ kubectl get service
 
 # Redeploy
 # kubectl set image deployment azure-vote-front azure-vote-front=myacr202106.azurecr.io/azure-vote-front:v1
+
+## Generate synthetic load, and autoscale the Pods
+# kubectl autoscale deployment azure-vote-front --cpu-percent=50 --min=3 --max=10
+
+# Generate load in the terminal by creating a container with "busybox" image
+# Open the bash into the container
+# kubectl run -it --rm load-generator --image=busybox /bin/sh
+
+# You will see a new command prompt. Enter the following in the new command prompt.
+# It will send an infinite loop of queries to the cluster and increase the load on the cluster.
+
+# while true; do wget -q -O- [Public-IP]; done
+# Wait for a few minutes, and go back to the Azure AKS web portal, and check the Application Insights.
+# Alternatively, you can run the following in a new terminal window:
+
+# # You can check the increase in the number of pods by using the command below
+# kubectl get hpa
+
+# You can get name of HPA
+# kubectl get hpa
+# # Delete the horizontalpodautoscaler.autoscaling
+# kubectl delete hpa azure-vote-front
