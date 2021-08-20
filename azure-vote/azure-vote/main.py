@@ -33,15 +33,35 @@ config_integration.trace_integrations(['requests'])
 
 # Standard Logging
 logger = logging.getLogger(__name__)
-handler = AzureLogHandler(connection_string='InstrumentationKey=[your-guid]')
+handler = AzureLogHandler(connection_string='InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24')
 handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
 logger.addHandler(handler)
 # Logging custom Events 
-logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=[your-guid]'))
+logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24'))
 # Set the logging level
 logger.setLevel(logging.INFO)
 
+# Add Metrics
+exporter = metrics_exporter.new_metrics_exporter(
+enable_standard_metrics=True,
+connection_string='InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24')
+view_manager.register_exporter(exporter)
+
+# Add Tracing
+tracer = Tracer(
+ exporter=AzureExporter(
+     connection_string='InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24'),
+ sampler=ProbabilitySampler(1.0),
+)
+
 app = Flask(__name__)
+
+# Add Requests
+middleware = FlaskMiddleware(
+ app,
+ exporter=AzureExporter(connection_string="InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24"),
+ sampler=ProbabilitySampler(rate=1.0)
+)
 
 # Load configurations from environment or config file
 app.config.from_pyfile('config_file.cfg')
@@ -91,7 +111,14 @@ def index():
 
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
+        # TODO: use tracer object to trace cat vote
+        with tracer.span(name="Cats Vote") as span:
+            print("Cats Vote")
+
         vote2 = r.get(button2).decode('utf-8')
+        # TODO: use tracer object to trace dog vote
+        with tracer.span(name="Dogs Vote") as span:
+            print("Dogs Vote")
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -103,8 +130,17 @@ def index():
             # Empty table and return results
             r.set(button1,0)
             r.set(button2,0)
+            
             vote1 = r.get(button1).decode('utf-8')
+            properties = {'custom_dimensions': {'Cats Vote': vote1}}
+            # TODO: use logger object to log cat vote
+            logger.info('Cats Vote', extra=properties)
+
             vote2 = r.get(button2).decode('utf-8')
+            properties = {'custom_dimensions': {'Dogs Vote': vote2}}
+            # TODO: use logger object to log dog vote
+            logger.info('Dogs Vote', extra=properties)
+
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
         
         else:
@@ -115,8 +151,15 @@ def index():
             
             # Get current values
             vote1 = r.get(button1).decode('utf-8')
-            vote2 = r.get(button2).decode('utf-8')  
-                
+            properties = {'custom_dimensions': {'Cats Vote': vote1}}
+            # TODO: use logger object to log cat vote
+            logger.info('Cats Vote', extra=properties)
+
+            vote2 = r.get(button2).decode('utf-8')
+            properties = {'custom_dimensions': {'Dogs Vote': vote2}}
+            # TODO: use logger object to log dog vote
+            logger.info('Dogs Vote', extra=properties)  
+
             # Return results
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
