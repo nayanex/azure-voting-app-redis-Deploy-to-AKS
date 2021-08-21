@@ -29,7 +29,8 @@ view_manager = stats.view_manager
 
 # Add Logger for custom Events:
 config_integration.trace_integrations(['logging'])
-config_integration.trace_integrations(['requests'])
+config_integration.trace_integrations(['requests']) # <-- this line enables the requests integration
+
 
 # Standard Logging
 logger = logging.getLogger(__name__)

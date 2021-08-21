@@ -3,6 +3,7 @@ RUN pip install redis
 RUN pip install opencensus
 RUN pip install opencensus-ext-azure
 RUN pip install opencensus-ext-flask
+RUN pip install opencensus-ext-logging
 RUN pip install flask
 # The ADD instruction copies new files, directories or remote file URLs from <src> 
 # and adds them to the filesystem of the image at the path <dest>

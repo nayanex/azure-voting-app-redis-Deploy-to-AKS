@@ -101,3 +101,23 @@ kubectl get service
 # kubectl get hpa
 # # Delete the horizontalpodautoscaler.autoscaling
 # kubectl delete hpa azure-vote-front
+
+# --------------------------------------------------------------------
+# Redeploy the app to the AKS cluster
+# Run the following commands in your terminal:
+
+# Stop and remove the local containers
+# docker-compose down
+# Recreate containers because the frontend application has changed in the steps above
+# docker-compose up -d --build --force-recreate
+# Check the application running at http://localhost:8080/
+# Tag the newly generated local image with the new tag, say "v2"
+# docker tag mcr.microsoft.com/azuredocs/azure-vote-front:v1 myacr202106.azurecr.io/azure-vote-front:v2
+# Login to the the ACR
+# az acr login --name myacr202106
+# Push the local image to the existing ACR
+# docker push myacr202106.azurecr.io/azure-vote-front:v2
+# Update the deployment image
+# kubectl set image deployment azure-vote-front azure-vote-front=myacr202106.azurecr.io/azure-vote-front:v2
+# Test the new deployment - use the external IP in your browser.
+# kubectl get service azure-vote-front --watch
