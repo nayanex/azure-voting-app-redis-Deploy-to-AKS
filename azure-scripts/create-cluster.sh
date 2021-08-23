@@ -8,8 +8,7 @@ resourceGroup="acdnd-c4-exercise" \
 
 # Install aks cli
 echo "Installing AKS CLI"
-
-az aks install-cli
+# az aks install-cli
 
 echo "AKS CLI installed"
 
@@ -121,3 +120,7 @@ kubectl get service
 # kubectl set image deployment azure-vote-front azure-vote-front=myacr202106.azurecr.io/azure-vote-front:v2
 # Test the new deployment - use the external IP in your browser.
 # kubectl get service azure-vote-front --watch
+
+## See logs
+# docker-compose logs --tail=0 --follow
+# docker container logs [OPTIONS] CONTAINER

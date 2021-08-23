@@ -5,6 +5,7 @@ import redis
 import socket
 import sys
 import logging
+import settings
 from datetime import datetime
 
 # App Insights
@@ -36,14 +37,14 @@ config_integration.trace_integrations(
 # Standard Logging
 logger = logging.getLogger(__name__)
 handler = AzureLogHandler(
-    connection_string="InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24"
+    connection_string="InstrumentationKey=525ec8c7-cd76-4a75-9085-181dffe6feaa"
 )
 handler.setFormatter(logging.Formatter("%(traceId)s %(spanId)s %(message)s"))
 logger.addHandler(handler)
 # Logging custom Events
 logger.addHandler(
     AzureEventHandler(
-        connection_string="InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24"
+        connection_string="InstrumentationKey=525ec8c7-cd76-4a75-9085-181dffe6feaa"
     )
 )
 # Set the logging level
@@ -52,14 +53,14 @@ logger.setLevel(logging.INFO)
 # Add Metrics
 exporter = metrics_exporter.new_metrics_exporter(
     enable_standard_metrics=True,
-    connection_string="InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24",
+    connection_string="InstrumentationKey=525ec8c7-cd76-4a75-9085-181dffe6feaa",
 )
 view_manager.register_exporter(exporter)
 
 # Add Tracing
 tracer = Tracer(
     exporter=AzureExporter(
-        connection_string="InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24"
+        connection_string="InstrumentationKey=525ec8c7-cd76-4a75-9085-181dffe6feaa"
     ),
     sampler=ProbabilitySampler(1.0),
 )
@@ -69,7 +70,7 @@ app = Flask(__name__)
 middleware = FlaskMiddleware(
     app,
     exporter=AzureExporter(
-        connection_string="InstrumentationKey=e1e0aadc-8061-4207-8d62-368d500a6f24"
+        connection_string="InstrumentationKey=525ec8c7-cd76-4a75-9085-181dffe6feaa"
     ),
     sampler=ProbabilitySampler(rate=1.0),
 )
@@ -94,6 +95,9 @@ else:
 
 # Redis configurations
 redis_server = os.environ["REDIS"]
+
+print("------ CIVILLLL    WAAAAARRRR ---------")
+print(os.environ["REDIS"])
 
 # Redis Connection
 try:
@@ -199,4 +203,6 @@ def index():
             )
 
 if __name__ == "__main__":
-    app.run()
+    app.run(
+        host=settings.SERVER_HOST, port=settings.SERVER_PORT, debug=settings.FLASK_DEBUG
+    )

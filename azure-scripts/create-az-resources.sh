@@ -16,7 +16,7 @@ az acr login --name $myAcrName
 # Find the login server address of your registry
 az acr show --name $myAcrName --query loginServer --output table
 # Associate a tag to the local image
-docker tag mcr.microsoft.com/azuredocs/azure-vote-front:v1 myacr202106.azurecr.io/azure-vote-front:v1
+#docker tag mcr.microsoft.com/azuredocs/azure-vote-front:v1 myacr202106.azurecr.io/azure-vote-front:v1
 # Now you will see myacr202106.azurecr.io/azure-vote-front:v1 if you run docker images
 # Push the local registry to remote
 docker push myacr202106.azurecr.io/azure-vote-front:v1
