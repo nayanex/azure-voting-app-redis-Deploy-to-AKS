@@ -1,28 +1,29 @@
-from flask import Flask, request, render_template
+import logging
 import os
 import random
-import redis
 import socket
 import sys
-import logging
-import settings
 from datetime import datetime
+
+import redis
+from flask import Flask, render_template, request
+from opencensus.ext.azure import metrics_exporter
 
 # App Insights
 # TODO: Import required libraries for App Insights
-from opencensus.ext.azure.log_exporter import AzureLogHandler
-from opencensus.ext.azure.log_exporter import AzureEventHandler
-from opencensus.ext.azure import metrics_exporter
+from opencensus.ext.azure.log_exporter import AzureEventHandler, AzureLogHandler
+from opencensus.ext.azure.trace_exporter import AzureExporter
+from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.stats import aggregation as aggregation_module
 from opencensus.stats import measure as measure_module
 from opencensus.stats import stats as stats_module
 from opencensus.stats import view as view_module
 from opencensus.tags import tag_map as tag_map_module
 from opencensus.trace import config_integration
-from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
-from opencensus.ext.flask.flask_middleware import FlaskMiddleware
+
+import settings
 
 # For metrics
 stats = stats_module.stats
@@ -96,9 +97,6 @@ else:
 # Redis configurations
 redis_server = os.environ["REDIS"]
 
-print("------ CIVILLLL    WAAAAARRRR ---------")
-print(os.environ["REDIS"])
-
 # Redis Connection
 try:
     if "REDIS_PWD" in os.environ:
@@ -124,9 +122,7 @@ if not r.get(button2):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-
     if request.method == "GET":
-
         # Get current values
         vote1 = r.get(button1).decode("utf-8")
         # TODO: use tracer object to trace cat vote
@@ -149,7 +145,6 @@ def index():
         )
 
     elif request.method == "POST":
-
         if request.form["vote"] == "reset":
 
             # Empty table and return results
@@ -176,21 +171,20 @@ def index():
             )
 
         else:
-
             # Insert vote result into DB
             vote = request.form["vote"]
             r.incr(vote, 1)
 
             # Get current values
-            vote1 = r.get(button1).decode('utf-8')
-            properties = {'custom_dimensions': {'Cats Vote': vote1}}
+            vote1 = r.get(button1).decode("utf-8")
+            properties = {"custom_dimensions": {"Cats Vote": vote1}}
             # TODO: use logger object to log cat vote
-            logger.info('Cats Vote', extra=properties)
+            logger.info("Cats Vote", extra=properties)
 
-            vote2 = r.get(button2).decode('utf-8')
-            properties = {'custom_dimensions': {'Dogs Vote': vote2}}
+            vote2 = r.get(button2).decode("utf-8")
+            properties = {"custom_dimensions": {"Dogs Vote": vote2}}
             # TODO: use logger object to log dog vote
-            logger.info('Dogs Vote', extra=properties)    
+            logger.info("Dogs Vote", extra=properties)
 
             # Return results
             return render_template(
@@ -201,6 +195,7 @@ def index():
                 button2=button2,
                 title=title,
             )
+
 
 if __name__ == "__main__":
     app.run(

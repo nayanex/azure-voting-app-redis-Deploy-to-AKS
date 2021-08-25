@@ -9,3 +9,7 @@ RUN pip install flask
 # and adds them to the filesystem of the image at the path <dest>
 # Example: ADD [--chown=<user>:<group>] <src>... <dest>
 ADD /azure-vote /app
+
+EXPOSE 80
+
+
